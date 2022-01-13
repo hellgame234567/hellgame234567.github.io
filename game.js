@@ -1,5 +1,6 @@
-kaboom()
-
+kaboom({
+    background: [ 255, 255, 255, ],
+})
 // load assets
 loadSprite("bean", "bean.png")
 loadSprite("ghosty", "ghosty.png")
@@ -112,6 +113,28 @@ const LEVELS = [
 		"^^^  >     >^^^^>^^^^>^^^^^@",
 		"===========================",
 	],
+	[
+		"     $    $    $    $     $",
+		"     $    $    $    $     $",
+		"            ^              ",
+		"            %%             ",
+		"        ^ -            -   ",
+		"        %%%   ===          ",
+		"              -         -  ",
+		"  -       -          -  - @",
+		"              -            ",
+	],
+	[
+		"     $    $    $    $     $",
+		"     $    $    $    $     $",
+		"            ^              ",
+		" -  -         -           = ",
+		"         -            -   = ",
+		"      ^ ^^ ^^ ^ ^ ^ ^ ^ ^ =",
+		"  -            -         -= ",
+		"  ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ = ",
+		"  -          0 -           = ",
+	],
 ]
 
 // define what each symbol means in the level graph
@@ -174,6 +197,13 @@ const levelConf = {
 		area({ scale: 0.5, }),
 		origin("bot"),
 		pos(0, -12),
+		"portal",
+	],
+	"0": () => [
+		sprite("portal"),
+		area({ scale: 0.5, }),
+		origin("bot"),
+		patrol(),
 		"portal",
 	],
 }
