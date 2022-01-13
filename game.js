@@ -78,7 +78,7 @@ const MOVE_SPEED = 580
 const FALL_DEATH = 2400
 
 const LEVELS = [
-	[
+	/*[
 		"                      ^   $",
 		"                     ==   $",
 		"                     ^=   $",
@@ -128,13 +128,24 @@ const LEVELS = [
 		"     $    $    $    $     $",
 		"     $    $    $    $     $",
 		"            ^              ",
-		" -  -         -           = ",
-		"         -            -   = ",
-		"      ^ ^^ ^^ ^ ^ ^ ^ ^ ^ =",
-		"  -            -         -= ",
-		"  ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ = ",
-		"  -          0 -           = ",
-	],
+		" -  -         -   $      = ",
+		"      $   -   $         -  = ",
+		"      ^  ^  ^  ^   ^   ^ =",
+		"  -      $   $   - $   $  -= ",
+		"  ^   ^   ^   ^  ^   ^ ^ = ",
+		"  -   $    $   0 -  $   $  = ",
+	],*/
+	[
+		"     >$^^$ ^^^^ ^>>$^ >> ^$ ^^^",
+		"  ^   $  >>>  $   - $ ^  >- $ @",
+		"  -   = -   >>   - ^ >> ^    >> =",
+		"          >> -- >     ^->>  = ",
+		"        -      -    -  ^  > - = ",
+		"       - >        >        = ",
+		"           -   >-         > = ",
+		"          >          >  > =",
+		"===========================",
+	]
 ]
 
 // define what each symbol means in the level graph
@@ -234,13 +245,13 @@ scene("game", ({ levelId, coins } = { levelId: 0, coins: 0 }) => {
 		camPos(player.pos)
 		// check fall death
 		if (player.pos.y >= FALL_DEATH) {
-			go("lose")
+			go("lose", coins)
 		}
 	})
 
 	// if player onCollide with any obj with "danger" tag, lose
 	player.onCollide("danger", () => {
-		go("lose")
+		go("lose", coins)
 		//play("hit")
 	})
 
@@ -252,7 +263,7 @@ scene("game", ({ levelId, coins } = { levelId: 0, coins: 0 }) => {
 				coins: coins,
 			})
 		} else {
-			go("win")
+			go("win", coins)
 		}
 	})
 
@@ -268,7 +279,7 @@ scene("game", ({ levelId, coins } = { levelId: 0, coins: 0 }) => {
 	player.onCollide("enemy", (e, col) => {
 		// if it's not from the top, die
 		if (!col.isBottom()) {
-			go("lose")
+			go("lose", coins)
 			//play("hit")
 		}
 	})
@@ -310,6 +321,7 @@ scene("game", ({ levelId, coins } = { levelId: 0, coins: 0 }) => {
 		coinPitch += 100
 		coins += 1
 		coinsLabel.text = coins
+		//alert(coins)
 	})
 
 	const coinsLabel = add([
@@ -348,16 +360,16 @@ scene("game", ({ levelId, coins } = { levelId: 0, coins: 0 }) => {
 
 })
 
-scene("lose", () => {
+scene("lose", (coins) => {
 	add([
-		text("You Lose"),
+		text("You Lose , " + "Collected coins: " + coins)
 	])
 	onKeyPress(() => go("game"))
 })
 
-scene("win", () => {
+scene("win", (coins) => {
 	add([
-		text("You Win"),
+		text("You Win, " + "Collected coins: " + coins),
 	])
 	onKeyPress(() => go("game"))
 })
