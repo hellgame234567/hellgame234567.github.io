@@ -82,7 +82,7 @@ const LEVELS = [
 		"                      ^   $",
 		"                     ==   $",
 		"                     ^=   $",
-		"      ===             =   $",
+		"      ===         -   =   $",
 		"      ^^              =   $",
 		"     -      $         =   $",
 		"  %      ======       =   $",
@@ -176,7 +176,7 @@ const levelConf = {
 	],
 	"^": () => [
 		sprite("spike"),
-		area(),
+		area({ scale: 0.5, }),
 		solid(),
 		origin("bot"),
 		"danger",
@@ -221,7 +221,7 @@ const levelConf = {
 
 scene("game", ({ levelId, coins } = { levelId: 0, coins: 0 }) => {
 
-	gravity(3200)
+	gravity(3800)
 
 	// add level to scene
 	const level = addLevel(LEVELS[levelId ?? 0], levelConf)
