@@ -2,7 +2,7 @@ kaboom({
     background: [ 255, 255, 255, ],
 })
 // load assets
-loadSprite("bean", "bean.png")
+loadSprite("bean", "bean.jpg")
 loadSprite("ghosty", "ghosty.png")
 loadSprite("spike", "spike.png")
 loadSprite("grass", "grass.png")
