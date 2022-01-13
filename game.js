@@ -219,6 +219,39 @@ const levelConf = {
 	],
 }
 
+scene("start", () => {
+
+	add([
+		sprite("bean"),
+		pos(center().sub(0, 240)),
+		scale(2),
+		origin("center"),
+	])
+
+	add([
+		text("On9 game"),
+		pos(center().sub(0, 100)),
+		scale(1),
+		origin("center"),
+	])
+
+	add([
+		text("Press [SPACE] to start"),
+		pos(center().add(0, 100)),
+		scale(1),
+		origin("center"),
+	])
+	add([
+		text("version 0.1"),
+		pos(center().add(0, 330)),
+		scale(1),
+		origin("center"),
+	])
+
+	onKeyPress(() => go("game"))
+})
+
+
 scene("game", ({ levelId, coins } = { levelId: 0, coins: 0 }) => {
 
 	gravity(3800)
@@ -362,7 +395,8 @@ scene("game", ({ levelId, coins } = { levelId: 0, coins: 0 }) => {
 
 scene("lose", (coins) => {
 	add([
-		text("You Lose , " + "Collected coins: " + coins)
+		text("You Lose , " + "Collected coins: " + coins),
+		pos(center().sub(700, 100)),
 	])
 	onKeyPress(() => go("game"))
 })
@@ -370,8 +404,9 @@ scene("lose", (coins) => {
 scene("win", (coins) => {
 	add([
 		text("You Win, " + "Collected coins: " + coins),
+		pos(center().sub(700, 100))
 	])
 	onKeyPress(() => go("game"))
 })
 
-go("game")
+go("start")
