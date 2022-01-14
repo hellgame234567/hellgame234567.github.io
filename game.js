@@ -1,10 +1,16 @@
+
+
+
 kaboom({
     background: [ 255, 255, 255, ],
 })
+
+
 // load assets
 loadSprite("bean", "bean.jpg")
 loadSprite("ghosty", "ghosty.png")
 loadSprite("spike", "spike.png")
+loadSprite("spike-op", "spike-op.png")
 loadSprite("grass", "grass.png")
 loadSprite("prize", "jumpy.png")
 loadSprite("apple", "apple.png")
@@ -53,7 +59,7 @@ function big() {
 					this.smallify()
 				}
 			}
-			this.scale = this.scale.lerp(vec2(destScale), dt() * 6)
+			this.scale = this.scale.lerp(vec2(destScale), dt() * 16)
 		},
 		// custom methods
 		isBig() {
@@ -72,18 +78,55 @@ function big() {
 	}
 }
 
+// custom component that makes stuff grow big
+function small() {
+	let timer = 0
+	let isSmall = false
+	let destScale = 1
+	return {
+		// component id / name
+		id: "small",
+		// it requires the scale component
+		require: [ "scale" ],
+		// this runs every frame
+		update() {
+			if (isSmall) {
+				timer -= dt()
+				if (timer <= 0) {
+					this.biggify()
+				}
+			}
+			this.scale = this.scale.lerp(vec2(destScale), dt() * 16)
+		},
+		// custom methods
+		isSmall() {
+			return isSmall
+		},
+		smallify(time) {
+			destScale = 0.4
+			timer = time
+			isSmall = true
+		},
+		biggify() {
+			destScale = 1
+			timer = 0
+			isSmall = false
+		},
+	}
+}
+
 // define some constants
 const JUMP_FORCE = 1320
 const MOVE_SPEED = 580
 const FALL_DEATH = 2400
 
 const LEVELS = [
-	[
+	/*[
 		"                      ^   $",
 		"                     ==   $",
-		"                     ^=   $",
+		"                     v=   $",
 		"      ===         -   =   $",
-		"      ^^              =   $",
+		"      vv              =   $",
 		"     -      $         =   $",
 		"  %      ======       =   $",
 		"                      =   $",
@@ -127,23 +170,36 @@ const LEVELS = [
 	[
 		"     $    $    $    $     $",
 		"     $    $    $    $     $",
-		"            ^              ",
+		"            v              ",
 		" -  -         -   $      = ",
-		"      $   -   $         -  = ",
-		"      ^  ^  ^  ^   ^   ^ =",
-		"  -      $   $   - $   $  -= ",
+		"      $   -   $        - = ",
+		"      v  v  v  v  v   vvv =",
+		"  -      $   $   - $ $  -= ",
 		"  ^   ^   ^   ^  ^   ^ ^ = ",
-		"  -   $    $   0 -  $   $  = ",
+		"  -   $    $   0 -$   $  = ",
 	],
 	[
-		"     >$^^$ ^^^^ ^>>$^ >> ^$ ^^^",
-		"  ^   $  >>>  $   - $ ^  >- $ @",
-		"  -   = -   >>   - ^ >> ^    >> =",
-		"          >> -- >     ^->>  = ",
-		"        -      -    -  ^  > - = ",
-		"       - >        >        = ",
-		"           -   >-         > = ",
+		" >$vv$ vvvv v>>$v >> v$ vvv",
+		"  ^   $ >>> $ - $ ^  >- $ @",
+		" - = - >>   - v >> v   >> =",
+		"          >> -- >  ^->>  = ",
+		"       -   -   -  ^  > - = ",
+		"       - >      >        = ",
+		"        -   >-         > = ",
 		"          >          >  > =",
+		"===========================",
+	],*/
+	[
+		"                      =    ",
+		"                      =    ",
+		"                      =    ",
+		"                      =    ",
+		"                      =    ",
+		"        $   %   $     =    ",
+		"        $       $     =    ",
+		"                      =    ",
+		"                      $    ",
+		"          > =>        = ^ @",
 		"===========================",
 	]
 ]
@@ -173,6 +229,13 @@ const levelConf = {
 		solid(),
 		origin("bot"),
 		"prize",
+	],
+	"v":() => [
+		sprite("spike-op"),
+		area(),
+		solid(),
+		origin("bot"),
+		"danger",
 	],
 	"^": () => [
 		sprite("spike"),
@@ -219,13 +282,49 @@ const levelConf = {
 	],
 }
 
+//character animation
+const anims = {
+    x: 0, 
+    y: 0, 
+    height: 1344, 
+    width: 832, 
+    sliceX: 13, 
+    sliceY: 21,
+    anims: {
+        'walk-up': {from: 104, to: 112}, 
+        'walk-left': {from: 117, to: 125}, 
+        'walk-down': {from: 130, to: 138}, 
+        'walk-right': {from: 143, to: 151}, 
+        'idle-up': {from: 104, to: 104}, 
+        'idle-left': {from: 117, to: 117}, 
+        'idle-down': {from: 130, to: 130}, 
+        'idle-right': {from: 143, to: 143}, 
+    }
+}
+
+const corpusAnims = {
+    corpus: anims
+};
+
+loadSpriteAtlas("spritemerge_corpus.png", corpusAnims)
+
+
 scene("start", () => {
 
-	add([
+	/*add([
 		sprite("bean"),
 		pos(center().sub(0, 240)),
 		scale(2),
 		origin("center"),
+	])*/
+
+	add([
+		sprite('corpus'),
+		scale(2),
+		pos(center().add(-128, 0)),
+		origin("center"),
+		area(),
+		body()
 	])
 
 	add([
@@ -261,13 +360,14 @@ scene("game", ({ levelId, coins } = { levelId: 0, coins: 0 }) => {
 
 	// define player object
 	const player = add([
-		sprite("bean"),
+		sprite('corpus'),
 		pos(0, 0),
 		area(),
 		scale(1),
 		// makes it fall to gravity and jumpable
 		body(),
 		// the custom component we defined above
+		small(),
 		big(),
 		origin("bot"),
 	])
@@ -333,7 +433,7 @@ scene("game", ({ levelId, coins } = { levelId: 0, coins: 0 }) => {
 	player.onCollide("apple", (a) => {
 		destroy(a)
 		// as we defined in the big() component
-		player.biggify(3)
+		player.smallify(3)
 		hasApple = false
 		//play("powerup")
 	})
@@ -371,11 +471,14 @@ scene("game", ({ levelId, coins } = { levelId: 0, coins: 0 }) => {
 		}
 	})
 
-	onKeyDown("left", () => {
+	onKeyDown('left', () => {
+		DIRECTION = 'left';
+		switchAnimation('walk');
 		player.move(-MOVE_SPEED, 0)
 	})
-
-	onKeyDown("right", () => {
+	onKeyDown('right', () => {
+		DIRECTION = 'right';
+		switchAnimation('walk');
 		player.move(MOVE_SPEED, 0)
 	})
 
@@ -383,13 +486,36 @@ scene("game", ({ levelId, coins } = { levelId: 0, coins: 0 }) => {
 		player.weight = 3
 	})
 
-	onKeyRelease("down", () => {
+	onKeyRelease(['left', 'right', 'down', 'up'], () => {
+		switchAnimation('idle');
 		player.weight = 1
 	})
 
 	onKeyPress("f", () => {
 		fullscreen(!fullscreen())
 	})
+
+
+function switchAnimation(type) {
+	if (player.curAnim() !== type+'-'+DIRECTION) {
+        player.play(type+'-'+DIRECTION, {loop: true});
+    }
+
+}
+const getInfo = () => `
+	Level: ${levelId}
+	`.trim()
+
+	// Add some text to show the current animation
+	const label = add([
+		text(getInfo()),
+		pos(4),
+	])
+
+	label.onUpdate(() => {
+		label.text = getInfo()
+	})
+
 
 })
 
@@ -408,5 +534,6 @@ scene("win", (coins) => {
 	])
 	onKeyPress(() => go("game"))
 })
+
 
 go("start")
