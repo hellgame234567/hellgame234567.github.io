@@ -2,20 +2,22 @@
 
 
 kaboom({
-    background: [ 255, 255, 255, ],
+    background: [ 196, 217, 219 ],
 })
 
 
 // load assets
 loadSprite("bean", "bean.jpg")
-loadSprite("ghosty", "ghosty.png")
-loadSprite("spike", "spike.png")
+loadSprite("ghosty", "monster.png")
+loadSprite("spike", "Pointer1.png")
 loadSprite("spike-op", "spike-op.png")
 loadSprite("grass", "grass.png")
 loadSprite("prize", "jumpy.png")
 loadSprite("apple", "apple.png")
 loadSprite("portal", "portal.png")
 loadSprite("coin", "coin.png")
+loadSprite("lift", "lift.png")
+loadSprite('bg',"Background.png")
 
 /*loadSound("coin", "score.mp3")
 loadSound("powerup", "powerup.mp3")
@@ -201,6 +203,32 @@ const LEVELS = [
 		"                      $    ",
 		"          > =>        = ^ @",
 		"===========================",
+	],
+	[
+		"                      =    ",
+		"                      =    ",
+		"                      =    ",
+		"           >  >       =    ",
+		"      -           -   =    ",
+		"        $ -  %   $    =    ",
+		"       - $    -   -$  =    ",
+		"     -      -         = v v",
+		"                      $   =",
+		" - -  -  -       =    =====@",
+		"                      =    ",
+	],
+	[						
+		"                   v =     @",
+		"  >^>^>^ ^>^>^>^>^          =    ",
+		" ===================  =    ",
+		" =                    =    ",
+		" ===================  =    ",
+		" =>>>>>>>>>>>>>>>>>>  =    ",
+		" ==%==%===%=%==%===%  =    ",
+		"                      =    ",
+		"                      =    ",
+		"=======================    ",
+		"                          ",
 	]
 ]
 
@@ -213,6 +241,7 @@ const levelConf = {
 	"=": () => [
 		sprite("grass"),
 		area(),
+		scale(2),
 		solid(),
 		origin("bot"),
 	],
@@ -240,6 +269,7 @@ const levelConf = {
 	"^": () => [
 		sprite("spike"),
 		area({ scale: 0.5, }),
+		scale(2),
 		solid(),
 		origin("bot"),
 		"danger",
@@ -249,26 +279,30 @@ const levelConf = {
 		area(),
 		origin("bot"),
 		body(),
+		scale(2),
 		"apple",
 	],
     "-": () => [
-		sprite("grass"),
+		sprite("lift"),
 		area(),
 		origin("bot"),
 		solid(),
 		patrol(),
+		scale(2)
 	],
 	">": () => [
 		sprite("ghosty"),
 		area(),
 		origin("bot"),
 		body(),
+		scale(2.5),
 		patrol(),
 		"enemy",
 	],
 	"@": () => [
 		sprite("portal"),
 		area({ scale: 0.5, }),
+		scale(2),
 		origin("bot"),
 		pos(0, -12),
 		"portal",
@@ -299,6 +333,12 @@ const anims = {
         'idle-left': {from: 117, to: 117}, 
         'idle-down': {from: 130, to: 130}, 
         'idle-right': {from: 143, to: 143}, 
+		'idle': {
+			"from": 117,
+			"to": 125,
+			"speed": 3,
+			"loop": true
+		},
     }
 }
 
@@ -308,15 +348,7 @@ const corpusAnims = {
 
 loadSpriteAtlas("spritemerge_corpus.png", corpusAnims)
 
-
 scene("start", () => {
-
-	/*add([
-		sprite("bean"),
-		pos(center().sub(0, 240)),
-		scale(2),
-		origin("center"),
-	])*/
 
 	add([
 		sprite('corpus'),
@@ -351,9 +383,16 @@ scene("start", () => {
 })
 
 
-scene("game", ({ levelId, coins } = { levelId: 0, coins: 0 }) => {
+scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 
 	gravity(3800)
+
+	add([
+		sprite("bg"),
+		pos(center().sub(0, 100)),
+		scale(5),
+		origin("center"),
+	])
 
 	// add level to scene
 	const level = addLevel(LEVELS[levelId ?? 0], levelConf)
@@ -363,7 +402,7 @@ scene("game", ({ levelId, coins } = { levelId: 0, coins: 0 }) => {
 		sprite('corpus'),
 		pos(0, 0),
 		area(),
-		scale(1),
+		scale(4),
 		// makes it fall to gravity and jumpable
 		body(),
 		// the custom component we defined above
@@ -384,6 +423,7 @@ scene("game", ({ levelId, coins } = { levelId: 0, coins: 0 }) => {
 
 	// if player onCollide with any obj with "danger" tag, lose
 	player.onCollide("danger", () => {
+		addKaboom(player.pos)
 		go("lose", coins)
 		//play("hit")
 	})
@@ -476,6 +516,11 @@ scene("game", ({ levelId, coins } = { levelId: 0, coins: 0 }) => {
 		switchAnimation('walk');
 		player.move(-MOVE_SPEED, 0)
 	})
+
+	onKeyRelease('left', () => {
+		switchAnimation('idle');
+	})
+
 	onKeyDown('right', () => {
 		DIRECTION = 'right';
 		switchAnimation('walk');
