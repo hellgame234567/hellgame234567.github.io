@@ -515,30 +515,31 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 		}
 	}
 
+	const right = () => {
+		DIRECTION = 'right';
+		switchAnimation('walk');
+		player.move(MOVE_SPEED, 0)
+	}
+
+	const left = () =>{
+		DIRECTION = 'left';
+		switchAnimation('walk');
+		player.move(-MOVE_SPEED, 0)
+
+	}
+
 	// jump with space
 	//passed the function to the a const 
 	onKeyPress("space", jump)
 
-	onKeyDown('left', () => {
-		DIRECTION = 'left';
-		switchAnimation('walk');
-		player.move(-MOVE_SPEED, 0)
-	})
+	onKeyDown('left', left)
 
-	onKeyRelease('left', () => {
-		switchAnimation('idle');
-	})
-
-	onKeyDown('right', () => {
-		DIRECTION = 'right';
-		switchAnimation('walk');
-		player.move(MOVE_SPEED, 0)
-	})
+	onKeyDown('right', right)
 
 	onKeyPress("down", () => {
 		player.weight = 3
 	})
-
+	
 	onKeyRelease(['left', 'right', 'down', 'up'], () => {
 		switchAnimation('idle');
 		player.weight = 1
