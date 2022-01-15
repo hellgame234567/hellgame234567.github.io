@@ -539,7 +539,7 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 	onKeyPress("down", () => {
 		player.weight = 3
 	})
-	
+
 	onKeyRelease(['left', 'right', 'down', 'up'], () => {
 		switchAnimation('idle');
 		player.weight = 1
@@ -552,8 +552,8 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 	}
 
 	const leftButton = add([
-		sprite('left'),
-		pos(250, height() - 120),
+		sprite('right'),
+		pos(80, height() - 120),
 		scale(0.5),
 		opacity(0.5),
 		fixed(),
@@ -561,8 +561,8 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 	])
 
 	const rightButton = add([
-		sprite('right'),
-		pos(80, height() - 120),
+		sprite('left'),
+		pos(250, height() - 120),
 		scale(0.5),
 		opacity(0.5),
 		fixed(),
@@ -579,15 +579,14 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 	])
 
 
-
 	onTouchStart((id, pos) => {
 		if(leftButton.hasPoint(pos)){
-			KeyDown.left = true
+			left()
 			leftButton.opacity =1
 		}
 
 		else if(rightButton.hasPoint(pos)){
-			KeyDown.right = true
+			right()
 			rightButton.opacity =1
 		}
 		
