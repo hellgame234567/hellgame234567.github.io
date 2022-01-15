@@ -18,6 +18,7 @@ loadSprite("portal", "portal.png")
 loadSprite("coin", "frapment.png")
 loadSprite("lift", "lift.png")
 loadSprite('bg',"Background.png")
+loadSprite('weapon', "lighSaber.png")
 
 //mobile controller
 loadSprite("left", "left.png")
@@ -349,6 +350,11 @@ const anims = {
     }
 }
 
+
+const monsterAnimes = {
+
+}
+
 const corpusAnims = {
     corpus: anims
 };
@@ -398,7 +404,6 @@ scene("start", () => {
 	onTouchStart(() => go("game"))
 })
 
-
 scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 
 	gravity(3800)
@@ -415,7 +420,7 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 
 	// define player object
 	const player = add([
-		sprite('corpus'),
+		sprite('corpus', { anim: "idle" }),
 		pos(0, 0),
 		area(),
 		scale(4),
@@ -426,6 +431,18 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 		big(),
 		origin("bot"),
 	])
+
+	const sword = add([
+		pos(0,0),
+		sprite("weapon"),
+		origin("bot"),
+		rotate(0),
+		scale(2),
+		area(20),
+		follow(player, vec2(20, -20)),
+		spin(),
+	])
+
 
 	// action() runs every frame
 	player.onUpdate(() => {
@@ -490,6 +507,7 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 		destroy(a)
 		// as we defined in the big() component
 		player.smallify(3)
+		//player.biggify(3)
 		hasApple = false
 		//play("powerup")
 	})
@@ -550,12 +568,30 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 		DIRECTION = 'right';
 		switchAnimation('walk');
 		player.move(MOVE_SPEED, 0)
+		
 	})
 
 	onKeyPress("down", () => {
 		player.weight = 3
 		DIRECTION = 'down';
 		switchAnimation('walk');
+	})
+
+	onKeyPress("v", () => {
+		let interacted = false
+		
+		every("enemy", (l) => {
+			if (sword.isTouching(l)) {
+				sword.spin()
+				destroy(l)
+				addKaboom(sword.pos)
+				//play("powerup")
+			}
+		})
+
+		if (!interacted) {
+			sword.spin()
+		}
 	})
 
 	onKeyRelease(['left', 'right', 'down', 'up'], () => {
@@ -611,6 +647,7 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 		}
 
 	})
+	//mobile control end
 
 	onKeyPress("f", () => {
 		fullscreen(!fullscreen())
@@ -621,6 +658,27 @@ function switchAnimation(type) {
         player.play(type+'-'+DIRECTION, {loop: true});
     }
 }
+
+function spin() {
+	let spinning = false
+	return {
+		id: "spin",
+		update() {
+			if (spinning) {
+				this.angle += 600 * dt()
+				if (this.angle >= 150) {
+					this.angle = 0
+					spinning = false
+				}
+			}
+		},
+		spin() {
+			spinning = true
+		},
+	}
+}
+
+
 
 const getInfo = () => `
 	Level: ${levelId}
@@ -652,6 +710,5 @@ scene("win", (coins) => {
 	])
 	onKeyPress(() => go("game"))
 })
-
 
 go("start")
