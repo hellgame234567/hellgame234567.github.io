@@ -12,10 +12,10 @@ loadSprite("ghosty", "monster.png")
 loadSprite("spike", "Pointer1.png")
 loadSprite("spike-op", "spike-op.png")
 loadSprite("grass", "grass.png")
-loadSprite("prize", "jumpy.png")
+loadSprite("prize", "IndustrialTile_66.png")
 loadSprite("apple", "apple.png")
 loadSprite("portal", "portal.png")
-loadSprite("coin", "coin.png")
+loadSprite("coin", "frapment.png")
 loadSprite("lift", "lift.png")
 loadSprite('bg',"Background.png")
 
@@ -138,7 +138,7 @@ const LEVELS = [
 		"  %      ======       =   $",
 		"                      =   $",
 		"                      =    ",
-		"     > ^^  >    = >   = ^ @",
+		"=    >= ^^  >    = >  $= ^ @",
 		"===========================",
 	],
 	[
@@ -186,8 +186,8 @@ const LEVELS = [
 		"  -   $    $   0 -$   $  = ",
 	],
 	[
-		" >$vv$ vvvv v>>$v >> v$ vvv",
-		"  ^   $ >>> $ - $ ^  >- $ @",
+		" >$vv$   v    v>>$  >>    $ ",
+		"  ^   $ >>> $ - $    >- $ @",
 		" - = - >>   - v >> v   >> =",
 		"          >> -- >  ^->>  = ",
 		"       -   -   -  ^  > - = ",
@@ -253,13 +253,15 @@ const levelConf = {
 	"$": () => [
 		sprite("coin"),
 		area(),
-		pos(0, -9),
+		pos(0),
+		scale(0.4),
 		origin("bot"),
 		"coin",
 	],
 	"%": () => [
 		sprite("prize"),
 		area(),
+		scale(2),
 		solid(),
 		origin("bot"),
 		"prize",
@@ -330,7 +332,7 @@ const anims = {
     sliceX: 13, 
     sliceY: 21,
     anims: {
-        'walk-up': {from: 104, to: 112}, 
+        'walk-up': {from: 40, to: 44}, 
         'walk-left': {from: 117, to: 125}, 
         'walk-down': {from: 130, to: 138}, 
         'walk-right': {from: 143, to: 151}, 
@@ -339,8 +341,8 @@ const anims = {
         'idle-down': {from: 130, to: 130}, 
         'idle-right': {from: 143, to: 143}, 
 		'idle': {
-			"from": 117,
-			"to": 125,
+			"from": 40,
+			"to": 44,
 			"speed": 3,
 			"loop": true
 		},
@@ -356,16 +358,23 @@ loadSpriteAtlas("spritemerge_corpus.png", corpusAnims)
 scene("start", () => {
 
 	add([
+		sprite("bg"),
+		pos(center().sub(0, 100)),
+		scale(3.5),
+		origin("center"),
+	])
+
+	const player = add([
 		sprite('corpus'),
 		scale(2),
-		pos(center().add(-128, 0)),
+		pos(center().add(0, -180)),
 		origin("center"),
 		area(),
-		body()
+		fixed(),
 	])
 
 	add([
-		text("On9 game"),
+		text("NAKEDMAN"),
 		pos(center().sub(0, 100)),
 		scale(1),
 		origin("center"),
@@ -384,7 +393,9 @@ scene("start", () => {
 		origin("center"),
 	])
 
+
 	onKeyPress(() => go("game"))
+	onTouchStart(() => go("game"))
 })
 
 
@@ -508,36 +519,43 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 		fixed(),
 	])
 
+	//mobile control
+	const keyDown = {
+		left:false,
+		right:false
+	}
+
 	const jump = () => {
 		// these 2 functions are provided by body() component
+		DIRECTION = 'up';
+		switchAnimation('walk');
 		if (player.isGrounded()) {
 			player.jump(JUMP_FORCE)
 		}
-	}
-
-	const right = () => {
-		DIRECTION = 'right';
-		switchAnimation('walk');
-		player.move(MOVE_SPEED, 0)
-	}
-
-	const left = () =>{
-		DIRECTION = 'left';
-		switchAnimation('walk');
-		player.move(-MOVE_SPEED, 0)
-
 	}
 
 	// jump with space
 	//passed the function to the a const 
 	onKeyPress("space", jump)
 
-	onKeyDown('left', left)
+	onKeyDown('left',  () =>{
+		DIRECTION = 'left';
+		switchAnimation('walk');
+		player.move(-MOVE_SPEED, 0)
 
-	onKeyDown('right', right)
+	})
+
+	onKeyDown('right',() => {
+		console.log("running")
+		DIRECTION = 'right';
+		switchAnimation('walk');
+		player.move(MOVE_SPEED, 0)
+	})
 
 	onKeyPress("down", () => {
 		player.weight = 3
+		DIRECTION = 'down';
+		switchAnimation('walk');
 	})
 
 	onKeyRelease(['left', 'right', 'down', 'up'], () => {
@@ -545,12 +563,7 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 		player.weight = 1
 	})
 
-	//mobile control
-	const KeyDown = {
-		left:false,
-		right:false
-	}
-
+	//mobile control button
 	const leftButton = add([
 		sprite('right'),
 		pos(80, height() - 120),
@@ -576,39 +589,39 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 		opacity(0.5),
 		fixed(),
 		area()
-	])
-
+	])	
 
 	onTouchStart((id, pos) => {
 		if(leftButton.hasPoint(pos)){
-			left()
-			leftButton.opacity =1
+			console.log("left")
+			keyDown.left = true
+			console.log(keyDown)
+			leftButton.opacity = 1
 		}
-
 		else if(rightButton.hasPoint(pos)){
-			right()
+			console.log("right")
+			keyDown.right = true
+			console.log(keyDown)
 			rightButton.opacity =1
 		}
-		
 		else if(actionButton.hasPoint(pos)){
 			jump()
+			console.log(keyDown)
 			actionButton.opacity =1
 		}
 
 	})
 
-
 	onKeyPress("f", () => {
 		fullscreen(!fullscreen())
 	})
-
 
 function switchAnimation(type) {
 	if (player.curAnim() !== type+'-'+DIRECTION) {
         player.play(type+'-'+DIRECTION, {loop: true});
     }
-
 }
+
 const getInfo = () => `
 	Level: ${levelId}
 	`.trim()
@@ -622,13 +635,11 @@ const getInfo = () => `
 	label.onUpdate(() => {
 		label.text = getInfo()
 	})
-
-
 })
 
 scene("lose", (coins) => {
 	add([
-		text("You Lose , " + "Collected coins: " + coins),
+		text("You Lose , " + "Collected Data: " + coins),
 		pos(center().sub(700, 100)),
 	])
 	onKeyPress(() => go("game"))
@@ -636,11 +647,11 @@ scene("lose", (coins) => {
 
 scene("win", (coins) => {
 	add([
-		text("You Win, " + "Collected coins: " + coins),
+		text("You Win, " + "Collected Data: " + coins),
 		pos(center().sub(700, 100))
 	])
 	onKeyPress(() => go("game"))
 })
 
 
-go("game")
+go("start")
