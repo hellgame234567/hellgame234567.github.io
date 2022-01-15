@@ -19,6 +19,11 @@ loadSprite("coin", "coin.png")
 loadSprite("lift", "lift.png")
 loadSprite('bg',"Background.png")
 
+//mobile controller
+loadSprite("left", "left.png")
+loadSprite("right", "right.png")
+loadSprite('jump',"jump.png")
+
 /*loadSound("coin", "score.mp3")
 loadSound("powerup", "powerup.mp3")
 loadSound("blip", "blip.mp3")
@@ -503,13 +508,16 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 		fixed(),
 	])
 
-	// jump with space
-	onKeyPress("space", () => {
+	const jump = () => {
 		// these 2 functions are provided by body() component
 		if (player.isGrounded()) {
 			player.jump(JUMP_FORCE)
 		}
-	})
+	}
+
+	// jump with space
+	//passed the function to the a const 
+	onKeyPress("space", jump)
 
 	onKeyDown('left', () => {
 		DIRECTION = 'left';
@@ -535,6 +543,60 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 		switchAnimation('idle');
 		player.weight = 1
 	})
+
+	//mobile control
+	const KeyDown = {
+		left:false,
+		right:false
+	}
+
+	const leftButton = add([
+		sprite('left'),
+		pos(250, height() - 120),
+		scale(0.5),
+		opacity(0.5),
+		fixed(),
+		area()
+	])
+
+	const rightButton = add([
+		sprite('right'),
+		pos(80, height() - 120),
+		scale(0.5),
+		opacity(0.5),
+		fixed(),
+		area()
+	])
+
+	const actionButton = add([
+		sprite('jump'),
+		pos(width() -300, height() - 120),
+		scale(0.5),
+		opacity(0.5),
+		fixed(),
+		area()
+	])
+
+
+
+	onTouchStart((id, pos) => {
+		if(leftButton.hasPoint(pos)){
+			KeyDown.left = true
+			leftButton.opacity =1
+		}
+
+		else if(rightButton.hasPoint(pos)){
+			KeyDown.right = true
+			rightButton.opacity =1
+		}
+		
+		else if(actionButton.hasPoint(pos)){
+			jump()
+			actionButton.opacity =1
+		}
+
+	})
+
 
 	onKeyPress("f", () => {
 		fullscreen(!fullscreen())
