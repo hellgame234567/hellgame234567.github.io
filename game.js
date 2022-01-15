@@ -558,6 +558,8 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 
 	onKeyDown('left',  () =>{
 		DIRECTION = 'left';
+		sword.flipX(false)
+		sword.follow.offset =  vec2(-20, -20)
 		switchAnimation('walk');
 		player.move(-MOVE_SPEED, 0)
 
@@ -565,6 +567,8 @@ scene("game", ({ levelId, coins, time } = { levelId: 0, coins: 0, timer }) => {
 
 	onKeyDown('right',() => {
 		console.log("running")
+		sword.flipY(false)
+		sword.follow.offset =  vec2(20, -20)
 		DIRECTION = 'right';
 		switchAnimation('walk');
 		player.move(MOVE_SPEED, 0)
