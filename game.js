@@ -643,4 +643,4 @@ scene("win", (coins) => {
 })
 
 
-go("start")
+go("game")
